@@ -30,6 +30,7 @@ const getBlobPut = async () => {
 const compressImageBuffer = async (file) => {
   // webp 압축 + 해상도 축소 (조금 더 화질 높임)
   return sharp(file.buffer)
+    .rotate() // EXIF 방향 정보를 실제 픽셀에 반영해 잘못된 회전 방지
     .resize({ width: 480, withoutEnlargement: true })
     .webp({ quality: 70 })
     .toBuffer();
