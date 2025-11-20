@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&family=Nanum+Brush+Script&display=swap");
 :root {
   font-family: "Plus Jakarta Sans", "Noto Sans KR", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -50,7 +50,8 @@ body {
 }
 
 .insta-title {
-  font-family: "Pacifico", "Plus Jakarta Sans", "Noto Sans KR", cursive;
+  font-family: "Nanum Brush Script", "Pacifico", "Plus Jakarta Sans",
+    "Noto Sans KR", cursive;
   background: linear-gradient(120deg, #f58529, #dd2a7b, #8134af, #515bd4);
   -webkit-background-clip: text;
   color: transparent;
