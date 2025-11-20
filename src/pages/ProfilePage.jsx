@@ -11,22 +11,15 @@ export default function ProfilePage() {
   const { userProfile, profileStats, notifications, logout } = useData();
   const navigate = useNavigate();
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
-  const blobBase =
-    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const blobBase = import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return null;
-
-    // Absolute URL (Vercel Blob 등) - 먼저 체크!
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
-
-    // 신규 업로드는 blob 우선
     if (photo.startsWith("/uploads") && blobBase) {
       return `${blobBase}${photo}`;
     }
-
-    // 그 외 상대 경로
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
       return `${apiBase}${normalized}`;
@@ -75,9 +68,9 @@ export default function ProfilePage() {
           <div
             className="min-h-80 rounded-xl bg-cover bg-center @[480px]:rounded-xl"
             style={{
-              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
-                photoUrl(userProfile.photo)
-              }')`,
+              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${photoUrl(
+                userProfile.photo
+              )}')`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>
