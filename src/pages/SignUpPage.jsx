@@ -369,7 +369,7 @@ export default function SignUpPage() {
             <h2 className="text-lg font-bold tracking-tight">내 사진</h2>
           </div>
           <p className="pb-4 text-sm font-normal text-text-light/70 dark:text-text-dark/70">
-            당신을 가장 잘 보여주는 사진을 올려주세요.
+            당신을 잘 보여줄 수 있는 사진을 올려주세요.
           </p>
           <div className="w-40 cursor-pointer" onClick={handlePhotoClick}>
             <input
