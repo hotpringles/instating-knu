@@ -14,9 +14,11 @@ const AdminPage = () => {
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return null;
-    if (photo.includes("uploads")) return null;
     if (/^https?:\/\//i.test(photo)) {
       return photo;
+    }
+    if (photo.startsWith("/uploads") && blobBase) {
+      return `${blobBase}${photo}`;
     }
     if (baseUrl) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;

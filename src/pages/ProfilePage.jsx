@@ -15,13 +15,17 @@ export default function ProfilePage() {
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return null;
-    
+
     // Absolute URL (Vercel Blob 등) - 먼저 체크!
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
 
-    
+    // 신규 업로드는 blob 우선
+    if (photo.startsWith("/uploads") && blobBase) {
+      return `${blobBase}${photo}`;
+    }
+
     // 그 외 상대 경로
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;

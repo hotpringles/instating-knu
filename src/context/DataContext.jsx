@@ -4,6 +4,10 @@ import {
   profileStats as initialProfileStats,
 } from "../data/mockData";
 
+const blobBase =
+  import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+
 const buildPhotoUrl = (photo) => {
   if (!photo) return photo;
 
@@ -11,11 +15,12 @@ const buildPhotoUrl = (photo) => {
     return photo;
   }
 
-  // uploads 경로 올바름
-  const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  // uploads는 바로 blob 공개 URL로 변환
+  if (photo.startsWith("/uploads") && blobBase) {
+    return `${blobBase}${photo}`;
+  }
 
-
-  // 그 외 상대 경로
+  // 그 외 상대 경로는 API 베이스와 결합
   if (apiBase) {
     const normalized = photo.startsWith("/") ? photo : `/${photo}`;
     return `${apiBase}${normalized}`;

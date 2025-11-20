@@ -34,6 +34,9 @@ export default function MatchingPage() {
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
+    if (photo.startsWith("/uploads") && blobBase) {
+      return `${blobBase}${photo}`;
+    }
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
       return `${apiBase}${normalized}`;
