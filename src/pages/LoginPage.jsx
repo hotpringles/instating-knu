@@ -55,7 +55,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="pb-8 text-center text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
-            KNU 과팅
+            인팅눈팅
           </h1>
           <form className="flex w-full flex-col gap-4" onSubmit={handleSubmit}>
             <label className="flex w-full flex-col">
