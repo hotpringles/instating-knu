@@ -9,17 +9,10 @@ export default function UserDetailPage() {
   const blobBase =
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
-    if (!photo) return photo;
+    if (!photo) return null;
+    if (photo.includes("uploads")) return null;
     if (/^https?:\/\//i.test(photo)) {
-      if (blobBase && photo.includes("/uploads/")) {
-        const path = photo.substring(photo.indexOf("/uploads/"));
-        return `${blobBase}${path}`;
-      }
       return photo;
-    }
-    if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
-      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
-      return `${blobBase}${normalized}`;
     }
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
