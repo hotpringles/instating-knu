@@ -6,6 +6,7 @@ const { PrismaClient, Prisma } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const sharp = require("sharp");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const { auth, adminAuth } = require("./auth");
@@ -23,6 +24,15 @@ const getBlobPut = async () => {
     blobPutFn = put;
   }
   return blobPutFn;
+};
+
+// Compress uploaded images to reduce storage/traffic
+const compressImageBuffer = async (file) => {
+  // 기본적으로 jpeg로 변환해 용량 절감 (투명도는 흰 배경으로 처리)
+  return sharp(file.buffer)
+    .resize({ width: 1080, withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer();
 };
 
 // Middleware
@@ -58,15 +68,27 @@ const uploadToBlobStorage = async (file) => {
   }
 
   // Sanitize filename to ASCII-safe key to avoid blob path issues with non-URL-safe chars
-  const ext = path.extname(file.originalname || "");
-  const safeKey = `uploads/${Date.now()}-${Math.round(
-    Math.random() * 1e9
-  )}${ext}`;
+  const randomPart = Math.round(Math.random() * 1e9);
+  const baseKey = `uploads/${Date.now()}-${randomPart}`;
+  let bufferToUpload = file.buffer;
+  let contentType = file.mimetype;
+  let key = baseKey;
+
+  if (file.mimetype && file.mimetype.startsWith("image/")) {
+    // 이미지면 압축/리사이즈 후 jpeg 업로드
+    bufferToUpload = await compressImageBuffer(file);
+    contentType = "image/jpeg";
+    key = `${baseKey}.jpg`;
+  } else {
+    // 이미지가 아니면 원본 확장자만 안전하게 붙임
+    const ext = path.extname(file.originalname || "");
+    key = `${baseKey}${ext}`;
+  }
 
   const put = await getBlobPut();
-  const blob = await put(safeKey, file.buffer, {
+  const blob = await put(key, bufferToUpload, {
     access: "public",
-    contentType: file.mimetype,
+    contentType,
     token: process.env.BLOB_READ_WRITE_TOKEN,
   });
 
