@@ -6,19 +6,14 @@ import {
 
 const buildPhotoUrl = (photo) => {
   if (!photo) return photo;
-  // Absolute URL (blob/public) 그대로 사용
-  // Absolute URL (blob/public) 그대로 사용
+
   if (/^https?:\/\//i.test(photo)) {
     return photo;
   }
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
-  const blobBase =
-    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
-  // uploads 경로는 blob 베이스 우선
-  if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
-    const normalized = photo.startsWith("/") ? photo : `/${photo}`;
-    return `${blobBase}${normalized}`;
-  }
+
+
+  // 그 외 상대 경로
   if (apiBase) {
     const normalized = photo.startsWith("/") ? photo : `/${photo}`;
     return `${apiBase}${normalized}`;
