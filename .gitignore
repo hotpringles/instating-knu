@@ -1,0 +1,19 @@
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables (VERY IMPORTANT!)
+.env
+
+# User-uploaded files (should not be in version control)
+backend/uploads/
+
+# Prisma local database file
+backend/prisma/dev.db

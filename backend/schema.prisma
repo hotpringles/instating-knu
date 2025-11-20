@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id          String   @id @default(cuid())
+  studentId   String   @unique
+  password    String
+  name        String
+  department  String?
+  gender      String?
+  instagramId String?
+  photo       String?  // 프로필 사진 경로를 저장할 필드
+  interests   String[] @default([]) // 관심사 목록
+  coins       Int      @default(2) // 코인 개수
+  lastCoinUpdate DateTime @default(now()) // 마지막 코인 업데이트 시간
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User와 MatchingCard의 관계 설정 (한 명의 유저는 여러 카드를 가질 수 있음)
+  matchingCards MatchingCard[]
+  revealedProfiles RevealedProfile[]
+  notifications    Notification[]
+
+  @@map("users")
+}
+
+model MatchingCard {
+  id          String   @id @default(cuid())
+  description String
+  matchType   String // "2v2" or "3v3"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User와의 관계 설정 (어떤 유저가 이 카드를 만들었는지)
+  author    User   @relation(fields: [authorId], references: [id])
+  authorId  String
+  revealedBy RevealedProfile[]
+
+  @@map("matching_cards")
+}
+
+model RevealedProfile {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  card   MatchingCard @relation(fields: [cardId], references: [id])
+  cardId String
+  revealedAt DateTime @default(now())
+
+  @@id([userId, cardId])
+  @@map("revealed_profiles")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // 알림을 받는 사용자와의 관계
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@map("notifications")
+}
