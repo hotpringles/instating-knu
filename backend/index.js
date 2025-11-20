@@ -58,11 +58,15 @@ const uploadToBlobStorage = async (file) => {
   }
 
   const put = await getBlobPut();
-  const blob = await put(`uploads/${Date.now()}-${file.originalname}`, file.buffer, {
-    access: "public",
-    contentType: file.mimetype,
-    token: process.env.BLOB_READ_WRITE_TOKEN,
-  });
+  const blob = await put(
+    `uploads/${Date.now()}-${file.originalname}`,
+    file.buffer,
+    {
+      access: "public",
+      contentType: file.mimetype,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }
+  );
 
   return blob.url;
 };
@@ -115,11 +119,9 @@ app.post("/api/signup", upload.single("photo"), async (req, res) => {
       .json({ message: "학번, 비밀번호, 이름은 필수 항목입니다." });
   }
   if (!studentId.startsWith("202")) {
-    return res
-      .status(400)
-      .json({
-        message: "경북대학교 학생이 맞으신가요? 학번은 202로 시작해야 합니다.",
-      });
+    return res.status(400).json({
+      message: "경북대학교 학생이 맞으신가요? 학번은 202로 시작해야 합니다.",
+    });
   }
   if (!req.file) {
     return res.status(400).json({ message: "프로필 사진은 필수입니다." });
@@ -229,11 +231,16 @@ app.post("/api/admin/login", async (req, res) => {
   const { adminId, password } = req.body;
 
   if (!adminId || !password) {
-    return res.status(400).json({ message: "관리자 ID와 비밀번호를 입력해주세요." });
+    return res
+      .status(400)
+      .json({ message: "관리자 ID와 비밀번호를 입력해주세요." });
   }
 
   // 환경 변수와 비교
-  if (adminId !== process.env.ADMIN_ID || password !== process.env.ADMIN_PASSWORD) {
+  if (
+    adminId !== process.env.ADMIN_ID ||
+    password !== process.env.ADMIN_PASSWORD
+  ) {
     return res.status(401).json({ message: "관리자 인증에 실패했습니다." });
   }
 
@@ -259,7 +266,6 @@ app.post("/api/admin/login", async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
-
 
 /**
  * @route   POST /api/forgot-password
@@ -444,9 +450,7 @@ app.post("/api/matching-cards", auth, async (req, res) => {
   const authorId = req.user.id;
 
   if (!description || !matchType) {
-    return res
-      .status(400)
-      .json({ message: "소개와 매칭 타입은 필수입니다." });
+    return res.status(400).json({ message: "소개와 매칭 타입은 필수입니다." });
   }
 
   try {
@@ -561,7 +565,9 @@ app.delete("/api/matching-cards", auth, async (req, res) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.revealedProfile.deleteMany({ where: { cardId: cardToDelete.id } });
+      await tx.revealedProfile.deleteMany({
+        where: { cardId: cardToDelete.id },
+      });
       await tx.matchingCard.delete({ where: { id: cardToDelete.id } });
     });
     res.status(200).json({ message: "매칭 카드가 삭제되었습니다." });
@@ -741,9 +747,7 @@ app.delete("/api/admin/cards/:cardId", auth, adminAuth, async (req, res) => {
         .json({ message: "삭제할 카드를 찾을 수 없습니다." });
     }
     console.error("관리자: 카드 삭제 중 오류:", error);
-    res
-      .status(500)
-      .json({ message: "카드 삭제 중 서버 오류가 발생했습니다." });
+    res.status(500).json({ message: "카드 삭제 중 서버 오류가 발생했습니다." });
   }
 });
 
@@ -756,9 +760,7 @@ app.delete("/api/admin/users/:userId", auth, adminAuth, async (req, res) => {
   const { userId } = req.params;
 
   if (req.user.id === userId) {
-    return res
-      .status(400)
-      .json({ message: "자기 자신을 삭제할 수 없습니다." });
+    return res.status(400).json({ message: "자기 자신을 삭제할 수 없습니다." });
   }
 
   try {
@@ -794,7 +796,7 @@ app.delete("/api/admin/users/:userId", auth, adminAuth, async (req, res) => {
   }
 });
 
-// Start server
+// start server
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   app.listen(PORT, () => {
