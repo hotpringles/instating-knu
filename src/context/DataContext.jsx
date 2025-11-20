@@ -4,6 +4,25 @@ import {
   profileStats as initialProfileStats,
 } from "../data/mockData";
 
+const buildPhotoUrl = (photo) => {
+  if (!photo) return photo;
+  // Absolute URL (blob/public) 그대로 사용
+  if (/^https?:\/\//i.test(photo)) return photo;
+  const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  const blobBase =
+    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  // uploads 경로는 blob 베이스 우선
+  if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
+    const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+    return `${blobBase}${normalized}`;
+  }
+  if (apiBase) {
+    const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+    return `${apiBase}${normalized}`;
+  }
+  return photo;
+};
+
 const DataContext = createContext();
 
 export function useData() {
@@ -30,7 +49,12 @@ export function DataProvider({ children }) {
       );
       const data = await response.json();
       if (response.ok) {
-        setMatchingGroupCards(data);
+        setMatchingGroupCards(
+          data.map((card) => ({
+            ...card,
+            author: { ...card.author, photo: buildPhotoUrl(card.author.photo) },
+          }))
+        );
       } else {
         throw new Error(data.message || "매칭 카드를 불러오지 못했습니다.");
       }
@@ -84,7 +108,10 @@ export function DataProvider({ children }) {
       });
       if (response.ok) {
         const userData = await response.json();
-        setUserProfile(userData); // 코인 정보가 포함된 최신 유저 정보로 업데이트
+        setUserProfile({
+          ...userData,
+          photo: buildPhotoUrl(userData.photo),
+        }); // 코인 정보가 포함된 최신 유저 정보로 업데이트
       } else {
         // 토큰이 유효하지 않은 경우 등
         logout();
@@ -111,7 +138,10 @@ export function DataProvider({ children }) {
       );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
-      setUserProfile(data.user); // 코인이 차감된 최신 유저 정보로 업데이트
+      setUserProfile({
+        ...data.user,
+        photo: buildPhotoUrl(data.user.photo),
+      }); // 코인이 차감된 최신 유저 정보로 업데이트
       return { success: true, user: data.user };
     } catch (error) {
       alert(error.message);
@@ -190,7 +220,10 @@ export function DataProvider({ children }) {
       );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
-      setUserProfile(data.user); // 수정된 최신 유저 정보로 업데이트
+      setUserProfile({
+        ...data.user,
+        photo: buildPhotoUrl(data.user.photo),
+      }); // 수정된 최신 유저 정보로 업데이트
     } catch (error) {
       alert(error.message);
     }
@@ -256,17 +289,20 @@ export function DataProvider({ children }) {
         }
       );
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "로그인에 실패했습니다.");
-      }
+        if (!response.ok) {
+          throw new Error(data.message || "로그인에 실패했습니다.");
+        }
 
-      localStorage.setItem("token", data.token);
-      setUserProfile(data.user);
+        localStorage.setItem("token", data.token);
+        setUserProfile({
+          ...data.user,
+          photo: buildPhotoUrl(data.user.photo),
+        });
 
-      if (data.user.role === "ADMIN") {
-        return { success: true, redirect: "/admin" };
-      }
-      return { success: true, redirect: "/matching" };
+        if (data.user.role === "ADMIN") {
+          return { success: true, redirect: "/admin" };
+        }
+        return { success: true, redirect: "/matching" };
     } catch (error) {
       console.error("로그인 오류:", error);
       return { success: false, message: error.message };
