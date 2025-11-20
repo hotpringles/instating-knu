@@ -21,8 +21,6 @@ export default function ProfilePage() {
       return photo;
     }
 
-    // Legacy: 'uploads/' 경로가 포함되어 있으면 (예전 로컬 파일), 이미지가 없다고 판단하여 null 반환
-    if (photo.includes("uploads")) return null;
     
     // 그 외 상대 경로
     if (apiBase) {
