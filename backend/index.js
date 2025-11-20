@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const fs = require("fs");
 const { PrismaClient, Prisma } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -13,15 +12,8 @@ const { auth, adminAuth } = require("./auth");
 const app = express();
 const prisma = new PrismaClient();
 
-// Determine upload directory based on environment
-// Vercel file system is read-only except for /tmp
-const isVercel = process.env.VERCEL === '1';
-const uploadDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads');
-
-// Ensure upload directory exists
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Legacy upload path is kept only to serve previously stored files
+const uploadDir = path.join(__dirname, "uploads");
 
 // Middleware
 app.use(
@@ -36,16 +28,24 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (uploads)
 app.use("/uploads", express.static(uploadDir));
 
-// Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
+// Multer setup - keep files in memory, then forward to blob storage
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Upload helper
+const uploadToBlobStorage = async (file) => {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
+  }
+
+  const { put } = await import("@vercel/blob");
+  const blob = await put(`uploads/${Date.now()}-${file.originalname}`, file.buffer, {
+    access: "public",
+    contentType: file.mimetype,
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+
+  return blob.url;
+};
 
 // Utility function
 const getOneWeekAgoDate = () => {
@@ -83,15 +83,6 @@ app.post("/api/signup", upload.single("photo"), async (req, res) => {
       .json({ message: "학번, 비밀번호, 이름은 필수 항목입니다." });
   }
   if (!studentId.startsWith("202")) {
-    if (req.file) {
-      const filePath = path.join(
-        uploadDir,
-        req.file.filename
-      );
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    }
     return res
       .status(400)
       .json({
@@ -101,7 +92,16 @@ app.post("/api/signup", upload.single("photo"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "프로필 사진은 필수입니다." });
   }
-  const photoUrl = `/uploads/${req.file.filename}`;
+
+  let photoUrl;
+  try {
+    photoUrl = await uploadToBlobStorage(req.file);
+  } catch (error) {
+    console.error("프로필 사진 업로드 실패:", error);
+    return res
+      .status(500)
+      .json({ message: "프로필 사진 업로드 중 오류가 발생했습니다." });
+  }
 
   try {
     const existingUser = await prisma.user.findUnique({
@@ -183,6 +183,47 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
+
+/**
+ * @route   POST /api/admin/login
+ * @desc    관리자 로그인 (환경 변수 기반)
+ * @access  Public
+ */
+app.post("/api/admin/login", async (req, res) => {
+  const { adminId, password } = req.body;
+
+  if (!adminId || !password) {
+    return res.status(400).json({ message: "관리자 ID와 비밀번호를 입력해주세요." });
+  }
+
+  // 환경 변수와 비교
+  if (adminId !== process.env.ADMIN_ID || password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ message: "관리자 인증에 실패했습니다." });
+  }
+
+  try {
+    // 관리자 토큰 생성
+    const token = jwt.sign(
+      { id: "admin", role: "ADMIN" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({
+      message: "관리자 로그인 성공!",
+      user: {
+        id: "admin",
+        name: "관리자",
+        role: "ADMIN",
+      },
+      token,
+    });
+  } catch (error) {
+    console.error("관리자 로그인 처리 중 오류 발생:", error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 
 /**
  * @route   POST /api/forgot-password
@@ -502,7 +543,14 @@ app.put("/api/profile", auth, upload.single("photo"), async (req, res) => {
   }
 
   if (req.file) {
-    dataToUpdate.photo = `/uploads/${req.file.filename}`;
+    try {
+      dataToUpdate.photo = await uploadToBlobStorage(req.file);
+    } catch (error) {
+      console.error("프로필 사진 업로드 실패:", error);
+      return res
+        .status(500)
+        .json({ message: "프로필 사진 업로드 중 오류가 발생했습니다." });
+    }
   }
 
   try {
