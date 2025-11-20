@@ -294,26 +294,27 @@ export function DataProvider({ children }) {
         return { success: true, redirect: "/matching" };
       }
 
-      // 2) 일반 로그인 실패 시 관리자 로그인 시도
-      const adminRes = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/admin/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ adminId: studentId, password }),
+      // 2) 일반 로그인 실패 시, 관리자 계정일 가능성이 있을 때만 시도 (예: 학번 규칙이 아닌 경우)
+      const looksLikeAdminId = !String(studentId || "").startsWith("202");
+      if (looksLikeAdminId) {
+        const adminRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ adminId: studentId, password }),
+          }
+        );
+        const adminData = await adminRes.json();
+        if (adminRes.ok) {
+          localStorage.setItem("token", adminData.token);
+          setUserProfile(adminData.user);
+          await fetchNotifications();
+          return { success: true, redirect: "/admin" };
         }
-      );
-      const adminData = await adminRes.json();
-      if (adminRes.ok) {
-        localStorage.setItem("token", adminData.token);
-        setUserProfile(adminData.user);
-        await fetchNotifications();
-        return { success: true, redirect: "/admin" };
       }
 
-      throw new Error(
-        adminData.message || data.message || "로그인에 실패했습니다."
-      );
+      throw new Error(data.message || "로그인에 실패했습니다.");
     } catch (error) {
       console.error("로그인 오류:", error);
       return { success: false, message: error.message };

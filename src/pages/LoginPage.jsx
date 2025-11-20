@@ -35,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light font-display shadow-lg dark:bg-background-dark">
+    <div className="relative mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden bg-background-light font-display shadow-lg dark:bg-background-dark">
       <div className="flex w-full flex-col items-center">
         <main className="flex w-full flex-col justify-center px-4 pt-16 sm:pt-24">
           <div className="flex justify-center pb-6">

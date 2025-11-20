@@ -59,18 +59,16 @@ const uploadToBlobStorage = async (file) => {
 
   // Sanitize filename to ASCII-safe key to avoid blob path issues with non-URL-safe chars
   const ext = path.extname(file.originalname || "");
-  const safeKey = `uploads/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+  const safeKey = `uploads/${Date.now()}-${Math.round(
+    Math.random() * 1e9
+  )}${ext}`;
 
   const put = await getBlobPut();
-  const blob = await put(
-    safeKey,
-    file.buffer,
-    {
-      access: "public",
-      contentType: file.mimetype,
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    }
-  );
+  const blob = await put(safeKey, file.buffer, {
+    access: "public",
+    contentType: file.mimetype,
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
 
   return blob.url;
 };
@@ -235,9 +233,7 @@ app.post("/api/admin/login", async (req, res) => {
   const { adminId, password } = req.body;
 
   if (!adminId || !password) {
-    return res
-      .status(400)
-      .json({ message: "관리자 ID와 비밀번호를 입력해주세요." });
+    return res.status(400).json({ message: "ID와 비밀번호를 입력해주세요." });
   }
 
   // 환경 변수와 비교
@@ -245,7 +241,7 @@ app.post("/api/admin/login", async (req, res) => {
     adminId !== process.env.ADMIN_ID ||
     password !== process.env.ADMIN_PASSWORD
   ) {
-    return res.status(401).json({ message: "관리자 인증에 실패했습니다." });
+    return res.status(401).json({ message: "사용자 인증에 실패했습니다." });
   }
 
   try {

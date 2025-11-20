@@ -123,7 +123,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light font-display shadow-lg dark:bg-background-dark">
+    <div className="relative mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden bg-background-light font-display shadow-lg dark:bg-background-dark">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
         <h2 className="flex-1 text-center text-xl font-bold text-slate-900 dark:text-white">
           관리자 페이지

@@ -73,7 +73,7 @@ export default function MatchingPage() {
   }, [activeMainTab, fetchNotifications]);
 
   return (
-    <div className="relative mx-auto flex h-screen w-full max-w-md flex-col bg-background-light shadow-lg dark:bg-background-dark">
+    <div className="relative mx-auto flex h-screen w-full max-w-md flex-col overflow-hidden bg-background-light shadow-lg dark:bg-background-dark">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
         <div className="flex w-12 items-center justify-start">
           {/* Placeholder for centering title */}

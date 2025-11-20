@@ -26,7 +26,7 @@ export default function MainPage({ user }) {
   return (
     <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light text-text-light shadow-lg dark:bg-background-dark dark:text-text-dark">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
-        <h1 className="text-xl font-bold tracking-tight">KNU 과팅</h1>
+        <h1 className="text-xl font-bold tracking-tight">인팅눈팅</h1>
         <button
           onClick={handleLogout}
           className="rounded-md bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
