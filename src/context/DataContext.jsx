@@ -7,14 +7,8 @@ import {
 const buildPhotoUrl = (photo) => {
   if (!photo) return photo;
   // Absolute URL (blob/public) 그대로 사용
+  // Absolute URL (blob/public) 그대로 사용
   if (/^https?:\/\//i.test(photo)) {
-    // localhost 등 절대경로라도 /uploads/가 있으면 blobBase 우선으로 재조립
-    const blobBase =
-      import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
-    if (blobBase && photo.includes("/uploads/")) {
-      const path = photo.substring(photo.indexOf("/uploads/"));
-      return `${blobBase}${path}`;
-    }
     return photo;
   }
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
