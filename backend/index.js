@@ -28,10 +28,10 @@ const getBlobPut = async () => {
 
 // Compress uploaded images to reduce storage/traffic (aggressive for quota)
 const compressImageBuffer = async (file) => {
-  // webp 강압축 + 해상도 축소
+  // webp 압축 + 해상도 축소 (조금 더 화질 높임)
   return sharp(file.buffer)
-    .resize({ width: 200, withoutEnlargement: true })
-    .webp({ quality: 40 })
+    .resize({ width: 320, withoutEnlargement: true })
+    .webp({ quality: 55 })
     .toBuffer();
 };
 
