@@ -45,6 +45,10 @@ const getOneWeekAgoDate = () => {
 
 // --- API Routes ---
 
+app.get("/", (req, res) => {
+  res.send("InstaTing Backend is running!");
+});
+
 /**
  * @route   POST /api/signup
  * @desc    회원가입 처리
