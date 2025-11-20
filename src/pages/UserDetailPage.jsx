@@ -10,7 +10,6 @@ export default function UserDetailPage() {
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return null;
-    if (photo.includes("uploads")) return null;
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
@@ -76,7 +75,7 @@ export default function UserDetailPage() {
             style={{
               backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
                 photoUrl(card.author.photo)
-              })`,
+              }')`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>

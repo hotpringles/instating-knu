@@ -15,15 +15,16 @@ export default function ProfilePage() {
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return null;
-    // Legacy: 'uploads/' 경로가 포함되어 있으면 (예전 로컬 파일), 이미지가 없다고 판단하여 null 반환 (기본 이미지 표시)
-    if (photo.includes("uploads")) return null;
     
-    // Absolute URL (Vercel Blob 등)
+    // Absolute URL (Vercel Blob 등) - 먼저 체크!
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
+
+    // Legacy: 'uploads/' 경로가 포함되어 있으면 (예전 로컬 파일), 이미지가 없다고 판단하여 null 반환
+    if (photo.includes("uploads")) return null;
     
-    // 그 외 상대 경로 (혹시 모를 하위 호환)
+    // 그 외 상대 경로
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
       return `${apiBase}${normalized}`;
@@ -74,7 +75,7 @@ export default function ProfilePage() {
             style={{
               backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
                 photoUrl(userProfile.photo)
-              })`,
+              }')`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>
