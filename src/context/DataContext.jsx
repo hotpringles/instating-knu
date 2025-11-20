@@ -10,6 +10,8 @@ const buildPhotoUrl = (photo) => {
   if (/^https?:\/\//i.test(photo)) {
     return photo;
   }
+
+  // uploads 경로 올바름
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
 
