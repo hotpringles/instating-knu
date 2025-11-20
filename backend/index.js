@@ -1,11 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 const { PrismaClient, Prisma } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
-require("dotenv").config();
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const { auth, adminAuth } = require("./auth");
 
@@ -25,11 +26,21 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files (uploads)
-app.use("/uploads", express.static(uploadDir));
-
 // Multer setup - keep files in memory, then forward to blob storage
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Redirect /uploads/* to blob when not found locally (for new uploads)
+app.get("/uploads/:file", (req, res, next) => {
+  const localPath = path.join(uploadDir, req.params.file);
+  if (fs.existsSync(localPath)) {
+    return res.sendFile(localPath);
+  }
+  if (process.env.BLOB_BASE_URL) {
+    const redirectUrl = `${process.env.BLOB_BASE_URL}/uploads/${req.params.file}`;
+    return res.redirect(302, redirectUrl);
+  }
+  return res.status(404).json({ message: "파일을 찾을 수 없습니다." });
+});
 
 // Upload helper
 const uploadToBlobStorage = async (file) => {
@@ -509,7 +520,10 @@ app.delete("/api/matching-cards", auth, async (req, res) => {
       return res.status(404).json({ message: "삭제할 카드가 없습니다." });
     }
 
-    await prisma.matchingCard.delete({ where: { id: cardToDelete.id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.revealedProfile.deleteMany({ where: { cardId: cardToDelete.id } });
+      await tx.matchingCard.delete({ where: { id: cardToDelete.id } });
+    });
     res.status(200).json({ message: "매칭 카드가 삭제되었습니다." });
   } catch (error) {
     console.error("카드 삭제 중 오류 발생:", error);
