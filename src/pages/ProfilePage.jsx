@@ -19,7 +19,9 @@ export default function ProfilePage() {
       return photo;
     }
     const isUploadPath =
-      photo.startsWith("/uploads") || photo.startsWith("uploads") || photo.includes("/uploads/");
+      photo.startsWith("/uploads") ||
+      photo.startsWith("uploads") ||
+      photo.includes("/uploads/");
     if (isUploadPath && blobBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
       return `${blobBase}${encodePath(normalized)}`;
@@ -55,7 +57,7 @@ export default function ProfilePage() {
           </button>
         </div>
         <h2 className="flex-1 text-center text-xl font-bold leading-tight tracking-[-0.015em] text-slate-900 dark:text-white">
-          My Profile
+          내 프로필
         </h2>
         <div className="flex w-12 items-center justify-end">
           <div className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400">
@@ -190,7 +192,7 @@ export default function ProfilePage() {
           className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold tracking-[0.015em] text-white"
         >
           <span className="material-symbols-outlined">edit</span>
-          <span className="truncate">Edit Profile</span>
+          <span className="truncate">프로필 수정</span>
         </button>
         <button
           type="button"
@@ -203,7 +205,7 @@ export default function ProfilePage() {
           className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-slate-200 px-4 text-sm font-bold tracking-[0.015em] text-slate-600 dark:bg-slate-700 dark:text-slate-200"
         >
           <span className="material-symbols-outlined">logout</span>
-          <span className="truncate">Logout</span>
+          <span className="truncate">로그아웃</span>
         </button>
       </div>
 

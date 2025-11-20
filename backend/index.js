@@ -30,8 +30,8 @@ const getBlobPut = async () => {
 const compressImageBuffer = async (file) => {
   // webp 압축 + 해상도 축소 (조금 더 화질 높임)
   return sharp(file.buffer)
-    .resize({ width: 320, withoutEnlargement: true })
-    .webp({ quality: 55 })
+    .resize({ width: 480, withoutEnlargement: true })
+    .webp({ quality: 70 })
     .toBuffer();
 };
 
