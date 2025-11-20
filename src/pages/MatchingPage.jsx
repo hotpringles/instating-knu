@@ -31,8 +31,14 @@ export default function MatchingPage() {
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
   const photoUrl = (photo) => {
     if (!photo) return photo;
-    // absolute URL 그대로 사용
-    if (/^https?:\/\//i.test(photo)) return photo;
+    // absolute URL 그대로 사용하되, /uploads/가 포함돼 있으면 blobBase로 재조립
+    if (/^https?:\/\//i.test(photo)) {
+      if (blobBase && photo.includes("/uploads/")) {
+        const path = photo.substring(photo.indexOf("/uploads/"));
+        return `${blobBase}${path}`;
+      }
+      return photo;
+    }
     // blob의 /uploads 또는 uploads 경로는 blobBase 우선
     if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
