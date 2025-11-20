@@ -225,6 +225,28 @@ export function DataProvider({ children }) {
 
   const login = async (studentId, password) => {
     try {
+      // 1) 관리자 로그인 시도 (adminId, password)
+      try {
+        const adminRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ adminId: studentId, password }),
+          }
+        );
+        if (adminRes.ok) {
+          const adminData = await adminRes.json();
+          localStorage.setItem("token", adminData.token);
+          setUserProfile(adminData.user);
+          return { success: true, redirect: "/admin" };
+        }
+      } catch (adminError) {
+        // 관리자 요청이 완전히 실패해도 일반 로그인으로 계속 진행
+        console.error("관리자 로그인 시도 실패:", adminError);
+      }
+
+      // 2) 일반 사용자 로그인 시도
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/login`,
         {
@@ -238,17 +260,13 @@ export function DataProvider({ children }) {
         throw new Error(data.message || "로그인에 실패했습니다.");
       }
 
-      // 로그인 성공 시 토큰 저장
       localStorage.setItem("token", data.token);
-      // 사용자 정보 업데이트
       setUserProfile(data.user);
 
-      // 역할(role)에 따라 리다이렉트 경로 결정
       if (data.user.role === "ADMIN") {
         return { success: true, redirect: "/admin" };
-      } else {
-        return { success: true, redirect: "/matching" };
       }
+      return { success: true, redirect: "/matching" };
     } catch (error) {
       console.error("로그인 오류:", error);
       return { success: false, message: error.message };
