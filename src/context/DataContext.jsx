@@ -8,6 +8,8 @@ const blobBase =
   import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
 const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
 
+const encodePath = (path) => encodeURI(path);
+
 const buildPhotoUrl = (photo) => {
   if (!photo) return photo;
 
@@ -15,15 +17,18 @@ const buildPhotoUrl = (photo) => {
     return photo;
   }
 
-  // uploads는 바로 blob 공개 URL로 변환
-  if (photo.startsWith("/uploads") && blobBase) {
-    return `${blobBase}${photo}`;
+  // uploads는 바로 blob 공개 URL로 변환 (선행 슬래시 유무 모두 처리)
+  const isUploadPath =
+    photo.startsWith("/uploads") || photo.startsWith("uploads") || photo.includes("/uploads/");
+  if (isUploadPath && blobBase) {
+    const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+    return `${blobBase}${encodePath(normalized)}`;
   }
 
   // 그 외 상대 경로는 API 베이스와 결합
   if (apiBase) {
     const normalized = photo.startsWith("/") ? photo : `/${photo}`;
-    return `${apiBase}${normalized}`;
+    return `${apiBase}${encodePath(normalized)}`;
   }
   return photo;
 };

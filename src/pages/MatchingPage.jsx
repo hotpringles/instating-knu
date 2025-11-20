@@ -29,17 +29,21 @@ export default function MatchingPage() {
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
   const blobBase =
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const encodePath = (path) => encodeURI(path);
   const photoUrl = (photo) => {
     if (!photo) return null;
     if (/^https?:\/\//i.test(photo)) {
       return photo;
     }
-    if (photo.startsWith("/uploads") && blobBase) {
-      return `${blobBase}${photo}`;
+    const isUploadPath =
+      photo.startsWith("/uploads") || photo.startsWith("uploads") || photo.includes("/uploads/");
+    if (isUploadPath && blobBase) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${blobBase}${encodePath(normalized)}`;
     }
     if (apiBase) {
       const normalized = photo.startsWith("/") ? photo : `/${photo}`;
-      return `${apiBase}${normalized}`;
+      return `${apiBase}${encodePath(normalized)}`;
     }
     return photo;
   };
