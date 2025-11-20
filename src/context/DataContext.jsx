@@ -268,28 +268,7 @@ export function DataProvider({ children }) {
 
   const login = async (studentId, password) => {
     try {
-      // 1) 관리자 로그인 시도 (adminId, password)
-      try {
-        const adminRes = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/admin/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ adminId: studentId, password }),
-          }
-        );
-        if (adminRes.ok) {
-          const adminData = await adminRes.json();
-          localStorage.setItem("token", adminData.token);
-          setUserProfile(adminData.user);
-          return { success: true, redirect: "/admin" };
-        }
-      } catch (adminError) {
-        // 관리자 요청이 완전히 실패해도 일반 로그인으로 계속 진행
-        console.error("관리자 로그인 시도 실패:", adminError);
-      }
-
-      // 2) 일반 사용자 로그인 시도
+      // 1) 일반 사용자 로그인 시도
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/login`,
         {
@@ -299,17 +278,13 @@ export function DataProvider({ children }) {
         }
       );
       const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || "로그인에 실패했습니다.");
-        }
-
+      if (response.ok) {
         localStorage.setItem("token", data.token);
         setUserProfile({
           ...data.user,
           photo: buildPhotoUrl(data.user.photo),
         });
 
-        // 토큰 저장 후 /api/me 한 번 더 불러서 최신 상태(사진 URL 포함)로 맞춰줌
         await fetchCurrentUser();
         await fetchNotifications();
 
@@ -317,6 +292,28 @@ export function DataProvider({ children }) {
           return { success: true, redirect: "/admin" };
         }
         return { success: true, redirect: "/matching" };
+      }
+
+      // 2) 일반 로그인 실패 시 관리자 로그인 시도
+      const adminRes = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ adminId: studentId, password }),
+        }
+      );
+      const adminData = await adminRes.json();
+      if (adminRes.ok) {
+        localStorage.setItem("token", adminData.token);
+        setUserProfile(adminData.user);
+        await fetchNotifications();
+        return { success: true, redirect: "/admin" };
+      }
+
+      throw new Error(
+        adminData.message || data.message || "로그인에 실패했습니다."
+      );
     } catch (error) {
       console.error("로그인 오류:", error);
       return { success: false, message: error.message };

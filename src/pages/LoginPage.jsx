@@ -117,14 +117,6 @@ export default function LoginPage() {
                 {error}
               </p>
             )}
-            <div className="w-full pt-2 text-right">
-              <a
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-gray-400 dark:hover:text-primary"
-                href="/forgot-password"
-              >
-                비밀번호를 잊으셨나요?
-              </a>
-            </div>
             <div className="flex flex-col items-stretch gap-3 pt-4 pb-16">
               <button
                 type="submit"

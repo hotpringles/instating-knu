@@ -272,55 +272,6 @@ app.post("/api/admin/login", async (req, res) => {
 });
 
 /**
- * @route   POST /api/forgot-password
- * @desc    비밀번호 찾기/재설정
- * @access  Public
- */
-app.post("/api/forgot-password", async (req, res) => {
-  const { name, studentId, department, instagramId } = req.body;
-
-  if (!name || !studentId || !department || !instagramId) {
-    return res.status(400).json({ message: "모든 정보를 입력해주세요." });
-  }
-
-  try {
-    const user = await prisma.user.findFirst({
-      where: {
-        name,
-        studentId: String(studentId),
-        department,
-        instagramId,
-      },
-    });
-
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "일치하는 사용자 정보가 없습니다." });
-    }
-
-    const tempPassword = "temp" + Math.floor(100000 + Math.random() * 900000);
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(tempPassword, salt);
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedPassword },
-    });
-
-    res.status(200).json({
-      message:
-        "임시 비밀번호가 발급되었습니다. 로그인 후 비밀번호를 꼭 변경해주세요.",
-      tempPassword: tempPassword,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "비밀번호 재설정 중 오류가 발생했습니다." });
-  }
-});
-
-/**
  * @route   GET /api/me
  * @desc    현재 로그인된 사용자 정보 가져오기 (코인 업데이트 로직 포함)
  * @access  Private

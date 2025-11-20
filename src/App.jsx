@@ -5,7 +5,6 @@ import MatchingPage from "./pages/MatchingPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import UserDetailPage from "./pages/UserDetailPage.jsx";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import Layout from "./components/Layout.jsx";
 import { DataProvider, useData } from "./context/DataContext.jsx";
@@ -20,11 +19,6 @@ const appPages = [
     element: <SignUpPage />,
   },
   { path: "/profile", label: "프로필 보기", element: <ProfilePage /> },
-  {
-    path: "/forgot-password",
-    label: "비밀번호 찾기",
-    element: <ForgotPasswordPage />,
-  },
   { path: "/admin", label: "관리자", element: <AdminPage /> },
   { path: "/user/:userId", label: "사용자 상세", element: <UserDetailPage /> },
 ];
