@@ -304,6 +304,10 @@ export function DataProvider({ children }) {
           photo: buildPhotoUrl(data.user.photo),
         });
 
+        // 토큰 저장 후 /api/me 한 번 더 불러서 최신 상태(사진 URL 포함)로 맞춰줌
+        await fetchCurrentUser();
+        await fetchNotifications();
+
         if (data.user.role === "ADMIN") {
           return { success: true, redirect: "/admin" };
         }
