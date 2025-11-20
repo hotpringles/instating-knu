@@ -26,6 +26,19 @@ export default function MatchingPage() {
   const [requestType, setRequestType] = useState("2v2");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  const blobBase =
+    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const photoUrl = (photo) =>
+    !photo
+      ? photo
+      : photo.startsWith("http")
+        ? photo
+        : photo.startsWith("/uploads") && blobBase
+          ? `${blobBase}${photo}`
+          : apiBase
+            ? `${apiBase}${photo}`
+            : photo;
 
   // 컴포넌트가 처음 마운트될 때 매칭 카드 목록을 불러옵니다.
   useEffect(() => {
@@ -306,9 +319,9 @@ export default function MatchingPage() {
                                     : "blur-md scale-110"
                                 }`}
                                 style={{
-                                  backgroundImage: `url('${
-                                    import.meta.env.VITE_API_URL
-                                  }${user.author.photo}')`,
+                                  backgroundImage: `url('${photoUrl(
+                                    user.author.photo
+                                  )}')`,
                                 }}
                               />
                             ) : (

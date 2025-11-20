@@ -5,6 +5,19 @@ export default function UserDetailPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [card, setCard] = useState(null);
+  const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  const blobBase =
+    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const photoUrl = (photo) =>
+    !photo
+      ? photo
+      : photo.startsWith("http")
+        ? photo
+        : photo.startsWith("/uploads") && blobBase
+          ? `${blobBase}${photo}`
+          : apiBase
+            ? `${apiBase}${photo}`
+            : photo;
 
   useEffect(() => {
     const fetchCardDetail = async () => {
@@ -60,8 +73,8 @@ export default function UserDetailPage() {
             className="min-h-80 rounded-xl bg-cover bg-center @[480px]:rounded-xl"
             style={{
               backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
-                import.meta.env.VITE_API_URL
-              }${card.author.photo}')`,
+                photoUrl(card.author.photo)
+              })`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>

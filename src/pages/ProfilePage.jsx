@@ -10,6 +10,19 @@ const statLabelMap = {
 export default function ProfilePage() {
   const { userProfile, profileStats, notifications, logout } = useData();
   const navigate = useNavigate();
+  const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  const blobBase =
+    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const photoUrl = (photo) =>
+    !photo
+      ? photo
+      : photo.startsWith("http")
+        ? photo
+        : photo.startsWith("/uploads") && blobBase
+          ? `${blobBase}${photo}`
+          : apiBase
+            ? `${apiBase}${photo}`
+            : photo;
 
   const dynamicStats = profileStats.map((stat) => {
     if (stat.label === "Profile Views") {
@@ -53,8 +66,8 @@ export default function ProfilePage() {
             className="min-h-80 rounded-xl bg-cover bg-center @[480px]:rounded-xl"
             style={{
               backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
-                import.meta.env.VITE_API_URL
-              }${userProfile.photo}')`,
+                photoUrl(userProfile.photo)
+              })`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>

@@ -41,9 +41,12 @@ export default function SignUpPage() {
       setGender(userProfile.gender || "");
       setDepartment(userProfile.department || "");
       setInstagramId(userProfile.instagramId || "");
-      // userProfile.photo는 /uploads/.. 형태의 상대 경로이므로, 전체 URL을 만들어줍니다.
       if (userProfile.photo) {
-        setPhoto(`${import.meta.env.VITE_API_URL}${userProfile.photo}`);
+        const base = import.meta.env.VITE_API_URL;
+        const full = userProfile.photo.startsWith("http")
+          ? userProfile.photo
+          : `${base}${userProfile.photo}`;
+        setPhoto(full);
       }
       // userProfile.interests는 ['#운동', '#여행'] 같은 레이블 배열입니다.
       // 이를 ['exercise', 'travel'] 같은 ID 배열로 변환해야 합니다.

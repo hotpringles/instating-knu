@@ -9,6 +9,19 @@ const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [modalImage, setModalImage] = useState(null); // 이미지 모달 상태
   const [cards, setCards] = useState([]);
+  const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
+  const blobBase =
+    import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
+  const photoUrl = (photo) =>
+    !photo
+      ? photo
+      : photo.startsWith("http")
+        ? photo
+        : photo.startsWith("/uploads") && blobBase
+          ? `${blobBase}${photo}`
+          : baseUrl
+            ? `${baseUrl}${photo}`
+            : photo;
 
   const fetchData = useCallback(
     async (type) => {
@@ -167,14 +180,10 @@ const AdminPage = () => {
                   <div className="flex items-start gap-4">
                     {user.photo && (
                       <img
-                        src={`${import.meta.env.VITE_API_URL}${user.photo}`}
+                        src={photoUrl(user.photo)}
                         alt={user.name}
                         className="h-16 w-16 cursor-pointer rounded-lg object-cover transition hover:opacity-80"
-                        onClick={() =>
-                          setModalImage(
-                            `${import.meta.env.VITE_API_URL}${user.photo}`
-                          )
-                        }
+                        onClick={() => setModalImage(photoUrl(user.photo))}
                       />
                     )}
                     <div className="flex-1">

@@ -15,6 +15,15 @@ const prisma = new PrismaClient();
 
 // Legacy upload path is kept only to serve previously stored files
 const uploadDir = path.join(__dirname, "uploads");
+// Lazily import blob client once (ESM-only package)
+let blobPutFn = null;
+const getBlobPut = async () => {
+  if (!blobPutFn) {
+    const { put } = await import("@vercel/blob");
+    blobPutFn = put;
+  }
+  return blobPutFn;
+};
 
 // Middleware
 app.use(
@@ -48,7 +57,7 @@ const uploadToBlobStorage = async (file) => {
     throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
   }
 
-  const { put } = await import("@vercel/blob");
+  const put = await getBlobPut();
   const blob = await put(`uploads/${Date.now()}-${file.originalname}`, file.buffer, {
     access: "public",
     contentType: file.mimetype,
@@ -56,6 +65,18 @@ const uploadToBlobStorage = async (file) => {
   });
 
   return blob.url;
+};
+
+// Normalize photo URL to absolute blob/public URL when stored as /uploads/filename
+const toPublicPhotoUrl = (photo) => {
+  if (!photo) return photo;
+  if (photo.startsWith("http")) return photo;
+  if (process.env.BLOB_BASE_URL) {
+    const base = process.env.BLOB_BASE_URL.replace(/\/$/, "");
+    const pathPart = photo.startsWith("/") ? photo : `/${photo}`;
+    return `${base}${pathPart}`;
+  }
+  return photo;
 };
 
 // Utility function
@@ -136,7 +157,10 @@ app.post("/api/signup", upload.single("photo"), async (req, res) => {
         interests: interests ? JSON.parse(interests) : [],
       },
     });
-    res.status(201).json({ message: "회원가입 성공!", user: newUser });
+    res.status(201).json({
+      message: "회원가입 성공!",
+      user: { ...newUser, photo: toPublicPhotoUrl(newUser.photo) },
+    });
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -184,6 +208,7 @@ app.post("/api/login", async (req, res) => {
     );
 
     const { password: userPassword, ...userWithoutPassword } = user;
+    userWithoutPassword.photo = toPublicPhotoUrl(userWithoutPassword.photo);
     res.status(200).json({
       message: "로그인 성공!",
       user: userWithoutPassword,
@@ -321,6 +346,7 @@ app.get("/api/me", auth, async (req, res) => {
     }
 
     const { password, ...userWithoutPassword } = user;
+    userWithoutPassword.photo = toPublicPhotoUrl(userWithoutPassword.photo);
     res.status(200).json(userWithoutPassword);
   } catch (error) {
     console.error("내 정보 조회 중 오류 발생:", error);
@@ -355,7 +381,15 @@ app.get("/api/matching-cards", async (req, res) => {
         },
       },
     });
-    res.status(200).json(cards);
+    res.status(200).json(
+      cards.map((card) => ({
+        ...card,
+        author: {
+          ...card.author,
+          photo: toPublicPhotoUrl(card.author.photo),
+        },
+      }))
+    );
   } catch (error) {
     console.error("매칭 카드 로딩 중 오류 발생:", error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
@@ -388,7 +422,13 @@ app.get("/api/cards/:cardId", async (req, res) => {
     if (!card) {
       return res.status(404).json({ message: "카드를 찾을 수 없습니다." });
     }
-    res.status(200).json(card);
+    res.status(200).json({
+      ...card,
+      author: {
+        ...card.author,
+        photo: toPublicPhotoUrl(card.author.photo),
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
@@ -579,6 +619,7 @@ app.put("/api/profile", auth, upload.single("photo"), async (req, res) => {
       },
     });
     const { password, ...userWithoutPassword } = updatedUser;
+    userWithoutPassword.photo = toPublicPhotoUrl(userWithoutPassword.photo);
     res.status(200).json({
       message: "프로필이 업데이트되었습니다.",
       user: userWithoutPassword,
@@ -646,7 +687,7 @@ app.get("/api/admin/users", auth, adminAuth, async (req, res) => {
     });
     const usersWithoutPasswords = users.map((user) => {
       const { password, ...rest } = user;
-      return rest;
+      return { ...rest, photo: toPublicPhotoUrl(rest.photo) };
     });
     res.status(200).json(usersWithoutPasswords);
   } catch (error) {
