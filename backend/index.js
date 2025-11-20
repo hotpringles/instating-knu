@@ -26,12 +26,12 @@ const getBlobPut = async () => {
   return blobPutFn;
 };
 
-// Compress uploaded images to reduce storage/traffic
+// Compress uploaded images to reduce storage/traffic (aggressive for quota)
 const compressImageBuffer = async (file) => {
-  // 기본적으로 jpeg로 변환해 용량 절감 (투명도는 흰 배경으로 처리)
+  // webp 강압축 + 해상도 축소
   return sharp(file.buffer)
-    .resize({ width: 1080, withoutEnlargement: true })
-    .jpeg({ quality: 80 })
+    .resize({ width: 200, withoutEnlargement: true })
+    .webp({ quality: 30 })
     .toBuffer();
 };
 
@@ -75,10 +75,10 @@ const uploadToBlobStorage = async (file) => {
   let key = baseKey;
 
   if (file.mimetype && file.mimetype.startsWith("image/")) {
-    // 이미지면 압축/리사이즈 후 jpeg 업로드
+    // 이미지면 압축/리사이즈 후 webp 업로드
     bufferToUpload = await compressImageBuffer(file);
-    contentType = "image/jpeg";
-    key = `${baseKey}.jpg`;
+    contentType = "image/webp";
+    key = `${baseKey}.webp`;
   } else {
     // 이미지가 아니면 원본 확장자만 안전하게 붙임
     const ext = path.extname(file.originalname || "");
