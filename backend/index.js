@@ -57,9 +57,13 @@ const uploadToBlobStorage = async (file) => {
     throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
   }
 
+  // Sanitize filename to ASCII-safe key to avoid blob path issues with non-URL-safe chars
+  const ext = path.extname(file.originalname || "");
+  const safeKey = `uploads/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+
   const put = await getBlobPut();
   const blob = await put(
-    `uploads/${Date.now()}-${file.originalname}`,
+    safeKey,
     file.buffer,
     {
       access: "public",
