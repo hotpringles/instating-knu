@@ -16,19 +16,16 @@ if (!fs.existsSync(uploadsDir)) {
 
 // --- 미들웨어 설정 ---
 // 1. CORS 설정: 배포 환경과 로컬 환경의 요청을 모두 허용합니다.
-const whitelist = [
-  "http://localhost:5173", // 로컬 프론트엔드 개발 서버
-  "https://instating-frontend.vercel.app", // Vercel에 배포된 프론트엔드 주소 (실제 주소로 변경 필요)
-];
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: [
+    "http://localhost:5173", // 로컬 프론트엔드 개발 서버
+    "https://instating-frontend.vercel.app", // Vercel에 배포된 프론트엔드 주소
+  ],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
 };
+app.options("*", cors(corsOptions)); // Pre-flight 요청 처리
 app.use(cors(corsOptions));
 // 2. JSON 파서 설정: 요청 본문(body)에 담긴 JSON 데이터를 파싱하여 req.body 객체로 만듭니다.
 app.use(express.json());
