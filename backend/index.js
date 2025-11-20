@@ -465,6 +465,13 @@ app.post("/api/cards/:cardId/reveal", auth, async (req, res) => {
   const userId = req.user.id;
 
   try {
+    // 열람 잠금: 한국 시간 2025-11-21 17:30 이전에는 차단
+    const unlockAt = new Date(Date.UTC(2025, 10, 21, 8, 30)); // 2025-11-22 17:30 KST (UTC+9)
+    const now = new Date();
+    if (now < unlockAt) {
+      return res.status(403).json({ message: "17:30부터 이용이 가능합니다." });
+    }
+
     const [card, user] = await prisma.$transaction([
       prisma.matchingCard.findUnique({ where: { id: cardId } }),
       prisma.user.findUnique({ where: { id: userId } }),
