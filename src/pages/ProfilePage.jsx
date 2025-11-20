@@ -52,7 +52,9 @@ export default function ProfilePage() {
           <div
             className="min-h-80 rounded-xl bg-cover bg-center @[480px]:rounded-xl"
             style={{
-              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('http://localhost:4000${userProfile.photo}')`,
+              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
+                import.meta.env.VITE_API_URL
+              }${userProfile.photo}')`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>

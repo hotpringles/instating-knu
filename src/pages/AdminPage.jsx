@@ -17,7 +17,7 @@ const AdminPage = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:4000/api/admin/${type}`,
+          `${import.meta.env.VITE_API_URL}/api/admin/${type}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -57,7 +57,7 @@ const AdminPage = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:4000/api/admin/users/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/users/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +80,7 @@ const AdminPage = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:4000/api/admin/cards/${cardId}`,
+        `${import.meta.env.VITE_API_URL}/api/admin/cards/${cardId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -167,11 +167,13 @@ const AdminPage = () => {
                   <div className="flex items-start gap-4">
                     {user.photo && (
                       <img
-                        src={`http://localhost:4000${user.photo}`}
+                        src={`${import.meta.env.VITE_API_URL}${user.photo}`}
                         alt={user.name}
                         className="h-16 w-16 cursor-pointer rounded-lg object-cover transition hover:opacity-80"
                         onClick={() =>
-                          setModalImage(`http://localhost:4000${user.photo}`)
+                          setModalImage(
+                            `${import.meta.env.VITE_API_URL}${user.photo}`
+                          )
                         }
                       />
                     )}

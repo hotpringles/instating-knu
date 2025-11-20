@@ -25,7 +25,9 @@ export function DataProvider({ children }) {
   // 서버에서 매칭 카드 목록을 불러오는 함수
   const fetchMatchingCards = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:4000/api/matching-cards");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/matching-cards`
+      );
       const data = await response.json();
       if (response.ok) {
         setMatchingGroupCards(data);
@@ -46,14 +48,17 @@ export function DataProvider({ children }) {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/matching-cards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(cardData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/matching-cards`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(cardData),
+        }
+      );
       const data = await response.json();
       if (!response.ok) {
         // 실패 시, 서버에서 받은 에러 메시지를 담은 객체 반환
@@ -74,7 +79,7 @@ export function DataProvider({ children }) {
     if (!token) return;
 
     try {
-      const response = await fetch("http://localhost:4000/api/me", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
@@ -98,7 +103,7 @@ export function DataProvider({ children }) {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/cards/${cardId}/reveal`,
+        `${import.meta.env.VITE_API_URL}/api/cards/${cardId}/reveal`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -119,9 +124,12 @@ export function DataProvider({ children }) {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      const response = await fetch("http://localhost:4000/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/notifications`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         setNotifications(data);
@@ -136,7 +144,9 @@ export function DataProvider({ children }) {
     if (!token) return;
     try {
       await fetch(
-        `http://localhost:4000/api/notifications/${notificationId}/read`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/notifications/${notificationId}/read`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -168,13 +178,16 @@ export function DataProvider({ children }) {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/profile", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/profile`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setUserProfile(data.user); // 수정된 최신 유저 정보로 업데이트
@@ -191,12 +204,15 @@ export function DataProvider({ children }) {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/matching-cards", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/matching-cards`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       alert(data.message);
@@ -209,11 +225,14 @@ export function DataProvider({ children }) {
 
   const login = async (studentId, password) => {
     try {
-      const response = await fetch("http://localhost:4000/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId, password }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ studentId, password }),
+        }
+      );
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || "로그인에 실패했습니다.");

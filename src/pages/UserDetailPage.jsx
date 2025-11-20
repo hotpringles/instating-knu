@@ -10,7 +10,7 @@ export default function UserDetailPage() {
     const fetchCardDetail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:4000/api/cards/${userId}`
+          `${import.meta.env.VITE_API_URL}/api/cards/${userId}`
         );
         if (!response.ok) {
           throw new Error("사용자 정보를 불러오지 못했습니다.");
@@ -59,7 +59,9 @@ export default function UserDetailPage() {
           <div
             className="min-h-80 rounded-xl bg-cover bg-center @[480px]:rounded-xl"
             style={{
-              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('http://localhost:4000${card.author.photo}')`,
+              backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 25%), url('${
+                import.meta.env.VITE_API_URL
+              }${card.author.photo}')`,
             }}
             aria-label="사용자 프로필 사진"
           ></div>

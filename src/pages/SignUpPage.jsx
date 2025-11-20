@@ -43,7 +43,7 @@ export default function SignUpPage() {
       setInstagramId(userProfile.instagramId || "");
       // userProfile.photo는 /uploads/.. 형태의 상대 경로이므로, 전체 URL을 만들어줍니다.
       if (userProfile.photo) {
-        setPhoto(`http://localhost:4000${userProfile.photo}`);
+        setPhoto(`${import.meta.env.VITE_API_URL}${userProfile.photo}`);
       }
       // userProfile.interests는 ['#운동', '#여행'] 같은 레이블 배열입니다.
       // 이를 ['exercise', 'travel'] 같은 ID 배열로 변환해야 합니다.
@@ -174,12 +174,15 @@ export default function SignUpPage() {
       } else {
         formData.append("password", password);
         // 회원가입 API 호출
-        const response = await fetch("http://localhost:4000/api/signup", {
-          method: "POST",
-          // FormData를 사용할 때는 Content-Type 헤더를 설정하지 않음
-          // 브라우저가 자동으로 multipart/form-data로 설정해줌
-          body: formData,
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/signup`,
+          {
+            method: "POST",
+            // FormData를 사용할 때는 Content-Type 헤더를 설정하지 않음
+            // 브라우저가 자동으로 multipart/form-data로 설정해줌
+            body: formData,
+          }
+        );
 
         const data = await response.json();
 

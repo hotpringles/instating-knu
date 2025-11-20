@@ -306,7 +306,9 @@ export default function MatchingPage() {
                                     : "blur-md scale-110"
                                 }`}
                                 style={{
-                                  backgroundImage: `url('http://localhost:4000${user.author.photo}')`,
+                                  backgroundImage: `url('${
+                                    import.meta.env.VITE_API_URL
+                                  }${user.author.photo}')`,
                                 }}
                               />
                             ) : (
