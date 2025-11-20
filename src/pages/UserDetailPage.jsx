@@ -8,16 +8,19 @@ export default function UserDetailPage() {
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
   const blobBase =
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
-  const photoUrl = (photo) =>
-    !photo
-      ? photo
-      : photo.startsWith("http")
-        ? photo
-        : photo.startsWith("/uploads") && blobBase
-          ? `${blobBase}${photo}`
-          : apiBase
-            ? `${apiBase}${photo}`
-            : photo;
+  const photoUrl = (photo) => {
+    if (!photo) return photo;
+    if (/^https?:\/\//i.test(photo)) return photo;
+    if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${blobBase}${normalized}`;
+    }
+    if (apiBase) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${apiBase}${normalized}`;
+    }
+    return photo;
+  };
 
   useEffect(() => {
     const fetchCardDetail = async () => {

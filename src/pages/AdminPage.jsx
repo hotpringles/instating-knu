@@ -12,16 +12,19 @@ const AdminPage = () => {
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
   const blobBase =
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
-  const photoUrl = (photo) =>
-    !photo
-      ? photo
-      : photo.startsWith("http")
-        ? photo
-        : photo.startsWith("/uploads") && blobBase
-          ? `${blobBase}${photo}`
-          : baseUrl
-            ? `${baseUrl}${photo}`
-            : photo;
+  const photoUrl = (photo) => {
+    if (!photo) return photo;
+    if (/^https?:\/\//i.test(photo)) return photo;
+    if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${blobBase}${normalized}`;
+    }
+    if (baseUrl) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${baseUrl}${normalized}`;
+    }
+    return photo;
+  };
 
   const fetchData = useCallback(
     async (type) => {

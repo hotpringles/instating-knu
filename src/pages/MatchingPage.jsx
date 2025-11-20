@@ -29,16 +29,22 @@ export default function MatchingPage() {
   const apiBase = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "";
   const blobBase =
     import.meta.env.VITE_BLOB_BASE_URL?.replace(/\/$/, "") || "";
-  const photoUrl = (photo) =>
-    !photo
-      ? photo
-      : photo.startsWith("http")
-        ? photo
-        : photo.startsWith("/uploads") && blobBase
-          ? `${blobBase}${photo}`
-          : apiBase
-            ? `${apiBase}${photo}`
-            : photo;
+  const photoUrl = (photo) => {
+    if (!photo) return photo;
+    // absolute URL 그대로 사용
+    if (/^https?:\/\//i.test(photo)) return photo;
+    // blob의 /uploads 또는 uploads 경로는 blobBase 우선
+    if (blobBase && photo.replace(/^\//, "").startsWith("uploads")) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${blobBase}${normalized}`;
+    }
+    // 그 외엔 API 베이스에 붙임
+    if (apiBase) {
+      const normalized = photo.startsWith("/") ? photo : `/${photo}`;
+      return `${apiBase}${normalized}`;
+    }
+    return photo;
+  };
 
   // 컴포넌트가 처음 마운트될 때 매칭 카드 목록을 불러옵니다.
   useEffect(() => {
