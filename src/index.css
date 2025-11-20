@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 :root {
   font-family: "Plus Jakarta Sans", "Noto Sans KR", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -46,4 +47,13 @@ body {
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #555;
+}
+
+.insta-title {
+  font-family: "Pacifico", "Plus Jakarta Sans", "Noto Sans KR", cursive;
+  background: linear-gradient(120deg, #f58529, #dd2a7b, #8134af, #515bd4);
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 12px rgba(221, 42, 123, 0.25);
+  letter-spacing: 0.01em;
 }

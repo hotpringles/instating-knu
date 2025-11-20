@@ -205,14 +205,8 @@ export default function SignUpPage() {
 
   return (
     <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col bg-background-light text-text-light shadow-lg dark:bg-background-dark dark:text-text-dark">
-      <header className="sticky top-0 z-10 flex h-16 items-center bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
-        <button
-          type="button"
-          className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5"
-        >
-          <span className="material-symbols-outlined text-3xl">arrow_back</span>
-        </button>
-        <h1 className="flex-1 pr-12 text-center text-xl font-bold tracking-tight">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-center bg-background-light/80 px-4 backdrop-blur-sm dark:bg-background-dark/80">
+        <h1 className="text-xl font-bold tracking-tight">
           {isEditMode ? "프로필 수정" : "회원가입"}
         </h1>
       </header>
