@@ -31,7 +31,7 @@ const compressImageBuffer = async (file) => {
   // webp 강압축 + 해상도 축소
   return sharp(file.buffer)
     .resize({ width: 200, withoutEnlargement: true })
-    .webp({ quality: 30 })
+    .webp({ quality: 40 })
     .toBuffer();
 };
 
