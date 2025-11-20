@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadsDir)) {
 const corsOptions = {
   origin: [
     "http://localhost:5173", // 로컬 프론트엔드 개발 서버
-    "https://instating-frontend.vercel.app", // Vercel에 배포된 프론트엔드 주소
+    "https://instating-knu-app.vercel.app", // Vercel에 배포된 새로운 프론트엔드 주소
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
